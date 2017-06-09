@@ -1,6 +1,14 @@
 "use strict";
 var canvas;
 var context;
+var step  = 0;
+var lines = 100;
+var ymax  = 200;
+var rad   = 5;
+var ratio = 0.25;
+var xpos  = 20;
+var ypos  = 200;
+var nice  = 1/200;
 
 var Point = function(x, y) {
   this.x = x;
@@ -47,15 +55,6 @@ Slice.prototype.lines = function() {
   return ret;
 }
 
-var step  = 0;
-var lines = 100;
-var ymax  = 200;
-var rad   = 5;
-var ratio = 0.25;
-var xpos  = 20;
-var ypos  = 200;
-var nice  = 1/200;
-
 var resize = function() {
   canvas.width  = window.innerWidth;
   canvas.height = window.innerHeight;
@@ -65,15 +64,56 @@ var clear = function() {
   context.clearRect(0, 0, canvas.width, canvas.height);
 }
 
+var drawLine = function(x1, y1, x2, y2, x3, y3) {
+  var a = [y1, y2, y3].sort(function (a, b) {  return a - b;  });
+  // console.log(a);
+  // console.log(a);
+  
+  context.beginPath();
+  context.moveTo(x1, a[0]);
+  context.lineTo(x1, a[1]);
+	context.stroke();
+  context.beginPath();
+  // context.moveTo(x1, a[2]);
+  // context.lineTo(x1, 1000);
+  context.stroke();
+	// context.beginPath();
+	// context.moveTo(x1, y1);
+	// context.lineTo(x2, y2);
+	// context.stroke();
+	context.beginPath();
+	context.arc(x2, y2, 2, 0, 2*Math.PI);
+	context.stroke();
+	context.beginPath();
+	context.arc(x1, y1, 2, 0, 2*Math.PI);
+	context.stroke();
+  context.beginPath();
+	context.arc(x3, y3, 2, 0, 2*Math.PI);
+	context.stroke();
+}
+
+var getY = function(i, step) {
+	return ypos + ymax / 2 * (Math.sin(step * (i * nice + 0.08)));
+}
+var getY2 = function(i, step) {
+	return ypos + ratio * ymax / 2 * (Math.sin((step + 100) * (i * nice + 0.08)));
+}
+var getY3 = function(i, step) {
+	return ypos + (1.5) *ymax / 2 * (Math.sin((step + 200) * (i * nice + 0.08)));
+}
+
 var redraw = function() {
   context.lineWidth = '1';
   context.strokeRect(0, 0, window.innerWidth, window.innerHeight);
 
-  var l1 = new Line(new Point(0, 0), new Point(canvas.width, canvas.height));
-  var l2 = new Line(new Point(canvas.width, 0), new Point(0, canvas.height));
-  l1.draw(context);
-  l2.draw(context);
-  // requestAnimationFrame(redraw);
+  clear();
+  var ls = 20
+  for (var i = 0; i < lines; i++) {
+    drawLine(xpos + ls * i, getY(i, step), xpos + ls * i, getY2(i, step), xpos + ls * i, getY3(i, step));
+  }
+
+  step++
+  requestAnimationFrame(redraw);
 }
 
 var init = function() {
