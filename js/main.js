@@ -2,12 +2,11 @@
 var canvas;
 var context;
 var step  = 0;
-var lwid  = 4;
-var lsep  = 20;
+var lsep  = 10;
 var lines = 100;
 var ymax  = 200;
 
-var ratio = 0.9;
+var ratio = 0.8;
 // x, y for leftmost centre
 var xpos  = 0;
 var ypos  = 200;
@@ -36,20 +35,23 @@ Line.prototype.draw = function(context) {
 var resize = function() {
   canvas.width  = window.innerWidth;
   canvas.height = window.innerHeight;
-  lines = canvas.width / lsep;
-  ymax = canvas.height;
+  xpos = canvas.width / 20;
+  lsep = canvas.width / 30;
+  context.lineWidth = (lsep / 4).toString();
+  lines = ((canvas.width - (xpos - lsep) * 2) / lsep) - 1;
+  ymax = canvas.height * (1 - 1/10);
   ypos = canvas.height / 2;
 }
 
-var clear = function() {
-  context.clearRect(0, 0, canvas.width, canvas.height);
+var clear = function(context) {
+  context.fillRect(0, 0, canvas.width, canvas.height);
 }
 
 var getY = function(i, step, rat, diff) {
 	return ypos + ymax / 2 * rat * (Math.sin((step + diff) * (i * nice + star)));
 }
 
-var drawLine = function(x1, y1, x2, y2, x3, y3, x4, y4) {
+var drawLine = function(context, x1, y1, x2, y2, x3, y3, x4, y4) {
   var a = [y1, y2, y3, y4].sort(function (a, b) {  return a - b;  });
   // console.log(a);
   // console.log(a);
@@ -73,15 +75,18 @@ var drawLine = function(x1, y1, x2, y2, x3, y3, x4, y4) {
 }
 
 var redraw = function() {
-  context.lineWidth = lwid.toString();
-  context.strokeRect(0, 0, window.innerWidth, window.innerHeight);
+  console.log(context.strokeStyle + " " + context.fillStyle);
+  // context.strokeStyle = "#002D33";
+  // context.fillStyle   = "#00BCD4";
 
-  clear();
+  clear(context);
+  
   for (var i = 0; i < lines; i++) {
-    drawLine(xpos + lsep * i, getY(i, step/1, 1, 0), 
-             xpos + lsep * i, getY(i, step/2, ratio, 10*Math.PI),
-             xpos + lsep * i, getY(i, step/4, ratio / 1.5, 100*Math.PI),
-             xpos + lsep * i, getY(i, step/8, ratio / 2, 1000*Math.PI)
+    drawLine(context,
+             xpos + lsep * i, getY(i, step/1, 1, 0), 
+             xpos + lsep * i, getY(i, step/2, 0.8, 10*Math.PI),
+             xpos + lsep * i, getY(i, step/4, 0.6, 100*Math.PI),
+             xpos + lsep * i, getY(i, step/6, 0.4, 1000*Math.PI)
             );
   }
 
@@ -92,9 +97,13 @@ var redraw = function() {
 var init = function() {
   canvas = document.getElementById('c');
   context = canvas.getContext('2d');
-
+  
   window.addEventListener('resize', resize, false);
 
   resize();
+  
+  context.strokeStyle = "#002D33";
+  context.fillStyle   = "#00BCD4";
+  
   redraw();
 }
