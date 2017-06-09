@@ -2,19 +2,25 @@
 var canvas;
 var context;
 var step  = 0;
+var lwid  = 1;
+var lsep  = 8;
 var lines = 100;
 var ymax  = 200;
-var rad   = 5;
-var ratio = 0.25;
-var xpos  = 20;
+
+var ratio = 0.7;
+// x, y for leftmost centre
+var xpos  = 0;
 var ypos  = 200;
-var nice  = 1/200;
+// niceity ratio
+var nice  = Math.PI/4000;
+var star  = Math.PI/30;
 
 var Point = function(x, y) {
   this.x = x;
   this.y = y;
 }
 
+// a pair of points
 var Line = function(p1, p2) {
   this[0] = p1;
   this[1] = p2;
@@ -27,45 +33,24 @@ Line.prototype.draw = function(context) {
   context.stroke();
 }
 
-var Slice = function(x, ys) {
-  this.x  = x;
-  this.ys = ys;
-}
-
-Slice.prototype.lines = function() {
-  var x = this.x;
-  var ys = this.ys;
-  var ret;
-  var temp;
-
-  this.ys = ys.sort();
-  temp = ys.slice();
-  temp.unshift(temp.pop());
-
-  ret = ys.map(function (e, i) {
-    return new Line(new Point(x, temp[i]),
-                    new Point(x, ys[i]));
-  });
-
-  // replace every other
-  for (var i = 0; i <= ret.length; i += 2) {
-    ret.splice(i, 1);
-  }
-
-  return ret;
-}
-
 var resize = function() {
   canvas.width  = window.innerWidth;
   canvas.height = window.innerHeight;
+  lines = canvas.width / lsep;
+  ymax = canvas.height * 0.7;
+  ypos = canvas.height * 0.5;
 }
 
 var clear = function() {
   context.clearRect(0, 0, canvas.width, canvas.height);
 }
 
-var drawLine = function(x1, y1, x2, y2, x3, y3) {
-  var a = [y1, y2, y3].sort(function (a, b) {  return a - b;  });
+var getY = function(i, step, rat, diff) {
+	return ypos + ymax / 2 * rat * (Math.sin((step + diff) * (i * nice + star)));
+}
+
+var drawLine = function(x1, y1, x2, y2, x3, y3, x4, y4) {
+  var a = [y1, y2, y3, y4].sort(function (a, b) {  return a - b;  });
   // console.log(a);
   // console.log(a);
   
@@ -73,43 +58,31 @@ var drawLine = function(x1, y1, x2, y2, x3, y3) {
   context.moveTo(x1, a[0]);
   context.lineTo(x1, a[1]);
 	context.stroke();
+  
   context.beginPath();
-  // context.moveTo(x1, a[2]);
-  // context.lineTo(x1, 1000);
+  context.moveTo(x1, a[2]);
+  context.lineTo(x1, a[3]);
   context.stroke();
-	// context.beginPath();
-	// context.moveTo(x1, y1);
-	// context.lineTo(x2, y2);
-	// context.stroke();
-	context.beginPath();
-	context.arc(x2, y2, 2, 0, 2*Math.PI);
-	context.stroke();
-	context.beginPath();
-	context.arc(x1, y1, 2, 0, 2*Math.PI);
-	context.stroke();
-  context.beginPath();
-	context.arc(x3, y3, 2, 0, 2*Math.PI);
-	context.stroke();
-}
 
-var getY = function(i, step) {
-	return ypos + ymax / 2 * (Math.sin(step * (i * nice + 0.08)));
-}
-var getY2 = function(i, step) {
-	return ypos + ratio * ymax / 2 * (Math.sin((step + 100) * (i * nice + 0.08)));
-}
-var getY3 = function(i, step) {
-	return ypos + (1.5) *ymax / 2 * (Math.sin((step + 200) * (i * nice + 0.08)));
+	// context.beginPath();
+	// context.arc(x2, y2, 2, 0, 2*Math.PI);
+	// context.stroke();
+	// context.beginPath();
+	// context.arc(x1, y1, 2, 0, 2*Math.PI);
+	// context.stroke();
 }
 
 var redraw = function() {
-  context.lineWidth = '1';
+  context.lineWidth = lwid.toString();
   context.strokeRect(0, 0, window.innerWidth, window.innerHeight);
 
   clear();
-  var ls = 20
   for (var i = 0; i < lines; i++) {
-    drawLine(xpos + ls * i, getY(i, step), xpos + ls * i, getY2(i, step), xpos + ls * i, getY3(i, step));
+    drawLine(xpos + lsep * i, getY(i, step, 1, 0), 
+             xpos + lsep * i, getY(i, step, ratio, 10*Math.PI),
+             xpos + lsep * i, getY(i, step, ratio * ratio, 100*Math.PI),
+             xpos + lsep * i, getY(i, step, ratio * ratio * ratio, 1000*Math.PI)
+            );
   }
 
   step++
