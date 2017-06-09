@@ -35,6 +35,8 @@ Line.prototype.draw = function(context) {
 var resize = function() {
   canvas.width  = window.innerWidth;
   canvas.height = window.innerHeight;
+  context.strokeStyle = "#002D33";
+  context.fillStyle   = "#00BCD4";
   xpos = canvas.width / 20;
   lsep = canvas.width / 30;
   context.lineWidth = (lsep / 4).toString();
@@ -101,9 +103,5 @@ var init = function() {
   window.addEventListener('resize', resize, false);
 
   resize();
-  
-  context.strokeStyle = "#002D33";
-  context.fillStyle   = "#00BCD4";
-  
   redraw();
 }
