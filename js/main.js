@@ -43,6 +43,17 @@ var resize = function() {
   lines = ((canvas.width - (xpos - lsep) * 2) / lsep) - 1;
   ymax = canvas.height * (1 - 1/10);
   ypos = canvas.height / 2;
+  
+  // draw frame to stop it looking really laggy
+  clear(context);
+  for (var i = 0; i < lines; i++) {
+    drawLine(context,
+             xpos + lsep * i, getY(i, step/1, 1, 0), 
+             xpos + lsep * i, getY(i, step/2, 0.8, 10*Math.PI),
+             xpos + lsep * i, getY(i, step/4, 0.6, 100*Math.PI),
+             xpos + lsep * i, getY(i, step/6, 0.4, 1000*Math.PI)
+            );
+  }
 }
 
 var clear = function(context) {
